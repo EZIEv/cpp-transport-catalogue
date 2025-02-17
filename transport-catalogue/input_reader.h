@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-// место для вашего кода
-=======
 #pragma once
 #include <string>
 #include <string_view>
@@ -42,4 +39,3 @@ private:
 };
 
 }
->>>>>>> master

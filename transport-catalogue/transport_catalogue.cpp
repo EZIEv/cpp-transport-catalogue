@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-// место для вашего кода
-=======
 #include <vector>
 #include <set>
 #include <string>
@@ -71,4 +68,3 @@ void TransportCatalogue::AddBus(string name, vector<string_view> stops_names) {
 }
 
 }
->>>>>>> master

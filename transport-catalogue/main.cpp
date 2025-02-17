@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-// место для вашего кода
-=======
 #include <iostream>
 #include <string>
 
@@ -34,4 +31,3 @@ int main() {
         stat_reader::ParseAndPrintStat(catalogue, line, cout);
     }
 }
->>>>>>> master

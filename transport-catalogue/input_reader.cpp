@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-// место для вашего кода
-=======
 #include <algorithm>
 #include <cassert>
 #include <iterator>
@@ -122,4 +119,3 @@ void InputReader::ApplyCommands([[maybe_unused]] transport_catalogue::TransportC
 }
 
 }
->>>>>>> master

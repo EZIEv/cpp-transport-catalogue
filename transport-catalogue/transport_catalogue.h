@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-// место для вашего кода
-=======
 #pragma once
 
 #include <deque>
@@ -92,4 +89,3 @@ private:
 };
 
 }
->>>>>>> master

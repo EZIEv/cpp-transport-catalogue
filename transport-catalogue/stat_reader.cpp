@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-// место для вашего кода
-=======
 #include <iomanip>
 #include <iosfwd>
 #include <set>
@@ -65,4 +62,3 @@ void ParseAndPrintStat(const transport_catalogue::TransportCatalogue& tansport_c
 }
 
 }
->>>>>>> master

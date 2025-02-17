@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-// место для вашего кода
-=======
 #pragma once
 
 #include <iosfwd>
@@ -22,4 +19,3 @@ void ParseAndPrintStat(const transport_catalogue::TransportCatalogue& tansport_c
                        std::ostream& output);
 
 }
->>>>>>> master
