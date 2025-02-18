@@ -1,7 +1,6 @@
 #include <iomanip>
 #include <iosfwd>
 #include <set>
-#include <stdexcept>
 #include <string>
 #include <string_view>
 
@@ -28,36 +27,44 @@ RequestDescription ParseRequest(string_view request) {
             string(request.substr(not_space))};
 }
 
+// Выводит в поток информацию об автобусном маршруте
+void PrintBusInfo(string_view bus_id, const transport_catalogue::BusInfo* bus_info, ostream& output) {
+    if (bus_info) {
+        output << setprecision(6);
+        output << "Bus "s << bus_id << ": "s << bus_info->num_of_stops << " stops on route, "s <<
+                bus_info->num_of_unique_stops << " unique stops, "s << bus_info->length << " route length "s << endl;
+    } else {
+        output << "Bus "s << bus_id << ": not found"s << endl;
+    }
+}
+
+// Выводит в поток информацию об остановке
+void PrintStopInfo(string_view stop_id, const unordered_set<const transport_catalogue::Bus*>* const stop_info, ostream& output) {
+    if (stop_info) {
+        if (stop_info->empty()) {
+            output << "Stop "s << stop_id << ": no buses"s << endl;
+        } else {
+            output << "Stop "s << stop_id << ": buses "s;
+            set<const transport_catalogue::Bus*> buses(stop_info->begin(), stop_info->end());
+            for (const transport_catalogue::Bus* bus : buses) {
+                output << bus->name << " "s;
+            }
+            output << endl;
+        }
+    } else {
+        output << "Stop "s << stop_id << ": not found"s << endl;
+    }
+}
+
 // Выполняет запрос над транспортным справочником и выводит информацию в поток
-void ParseAndPrintStat(const transport_catalogue::TransportCatalogue& tansport_catalogue, string_view request,
+void ParseAndPrintStat(const transport_catalogue::TransportCatalogue& catalogue, string_view request,
                        ostream& output) {
     RequestDescription command = ParseRequest(request);
 
     if (command.name == "Bus"sv) {
-        try {
-            const transport_catalogue::BusInfo& bus_info = tansport_catalogue.GetBusInfo(command.id);
-
-            output << setprecision(6);
-            output << "Bus "s << command.id << ": "s << bus_info.num_of_stops << " stops on route, "s <<
-                    bus_info.num_of_unique_stops << " unique stops, "s << bus_info.length << " route length "s << endl;
-        } catch (const out_of_range& e) {
-            output << "Bus "s << command.id << ": not found"s << endl;
-        }
+        PrintBusInfo(command.id, catalogue.GetBusInfo(command.id), output);
     } else if (command.name == "Stop"sv) {
-        try {
-            const set<string_view> stop_info = tansport_catalogue.GetStopInfo(command.id);
-            if (stop_info.empty()) {
-                output << "Stop "s << command.id << ": no buses"s << endl;
-            } else {
-                output << "Stop "s << command.id << ": buses "s;
-                for (const string_view bus : stop_info) {
-                    output << bus << " "s;
-                }
-                output << endl;
-            }
-        } catch (const out_of_range& e) {
-            output << "Stop "s << command.id << ": not found"s << endl;
-        }
+        PrintStopInfo(command.id, catalogue.GetStopInfo(command.id), output);
     }
 }
 

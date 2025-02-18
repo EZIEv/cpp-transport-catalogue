@@ -4,7 +4,6 @@
 
 namespace geo {
 
-// Структура географических координат
 struct Coordinates {
     double lat; // < широта
     double lng; // < долгота

@@ -25,7 +25,6 @@ struct CommandDescription {
     std::string description;  // < параметры команды
 };
 
-// Класс чтения входных данных
 class InputReader {
 public:
     // Парсит строку в структуру CommandDescription и сохраняет результат в commands_
