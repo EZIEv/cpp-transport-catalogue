@@ -24,7 +24,6 @@ struct BusInfo {
 struct Bus {
 	std::string name; // < название автобусного маршрута
 	std::vector<const Stop*> stops; // < набор остановок на маршруте
-	BusInfo info; // < информация об автобусном маршруте
 };
 
 class TransportCatalogue {
@@ -35,12 +34,12 @@ public:
 	// Возвращает указатель на автобусный маршрут по его имени
 	const Bus* GetBus(std::string_view bus_name) const;
 
-	// Возвращает указатель на информацию об автобусном маршруте по его имени
-	const BusInfo* GetBusInfo(std::string_view bus_name) const;
+	// Возвращает информацию об автобусном маршруте по его имени
+	const BusInfo GetBusInfo(std::string_view bus_name) const;
 
-	/* Возвращает ссылку на множество автобусных маршрутов, 
+	/* Возвращает константную ссылку на множество автобусных маршрутов, 
 	   проходящих через остановку, по имени остановки */
-	const std::unordered_set<const Bus*>* GetStopInfo(std::string_view stop_name) const;
+	const std::unordered_set<const Bus*>& GetStopInfo(std::string_view stop_name) const;
 
 	// Добавляет новую остановку в транспортный справочник
 	void AddStop(const std::string& name, geo::Coordinates coords);

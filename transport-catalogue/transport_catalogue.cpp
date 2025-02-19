@@ -22,17 +22,31 @@ const Bus* TransportCatalogue::GetBus(string_view bus_name) const {
     return it != bus_by_name_.end() ? it->second : nullptr;
 }
 
-// Возвращает указатель на информацию об автобусном маршруте по его имени
-const BusInfo* TransportCatalogue::GetBusInfo(string_view bus_name) const {
+// Возвращает информацию об автобусном маршруте по его имени
+const BusInfo TransportCatalogue::GetBusInfo(string_view bus_name) const {
     const Bus* bus = GetBus(bus_name);
-    return bus ? &bus->info : nullptr;
+    if (!bus) {
+        return {0, 0, 0};
+    }
+    
+    unordered_set<const Stop*> unique_stops; // Создает набор уникальных указателей на остановки, через которые проходит маршрут
+    double length = 0;
+    for (size_t i = 0; i < bus->stops.size(); ++i) {
+        if (i != 0) {
+            length += geo::ComputeDistance((*bus).stops[i - 1]->coords, (*bus).stops[i]->coords);
+        }
+        unique_stops.insert((*bus).stops[i]);
+    }
+
+    return {(*bus).stops.size(), unique_stops.size(), length};
 }
 
-/* Возвращает указатель на множество наименований автобусных маршрутов, 
+/* Возвращает константную ссылку на множество наименований автобусных маршрутов, 
    проходящих через остановку, по имени остановки */
-const unordered_set<const Bus*>* TransportCatalogue::GetStopInfo(string_view stop_name) const {
+const unordered_set<const Bus*>& TransportCatalogue::GetStopInfo(string_view stop_name) const {
+    static const unordered_set<const Bus*> empty_set;
     auto it = buses_on_stop_.find(stop_name);
-    return it != buses_on_stop_.end() ? &it->second : nullptr;
+    return it != buses_on_stop_.end() ? it->second : empty_set;
 }
 
 // Добавляет новую остановку в транспортный справочник
@@ -47,19 +61,14 @@ void TransportCatalogue::AddStop(const string& name, geo::Coordinates coords) {
 void TransportCatalogue::AddBus(const string& name, const vector<string_view>& stops_names) {
     vector<const Stop*> stops; // Создает набор указателей на остановки, через которые проходит маршрут
     stops.reserve(stops_names.size());
-    unordered_set<const Stop*> unique_stops; // Создает набор уникальных указателей на остановки, через которые проходит маршрут
-    double length = 0;
+
     for (string_view stop_name : stops_names) {
-        const Stop* stop = GetStop(stop_name);
-        if (!stops.empty()) {
-            length += geo::ComputeDistance(stops.back()->coords, stop->coords);
-        }
-        stops.push_back(stop);
-        unique_stops.insert(stop);
+        stops.push_back(GetStop(stop_name));
     }
 
-    buses_.push_back({name, move(stops), {stops_names.size(), unique_stops.size(), length}}); // Создает новый маршрут
+    buses_.push_back({name, move(stops)}); // Создает новый маршрут
     const Bus* bus_ptr = &buses_.back(); // Создает указатель на этот маршрут
+    
     bus_by_name_[bus_ptr->name] = bus_ptr;
     for (const Stop* stop : bus_ptr->stops) {
         buses_on_stop_[stop->name].insert(bus_ptr);
