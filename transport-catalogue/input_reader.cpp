@@ -139,7 +139,9 @@ void InputReader::ApplyCommands([[maybe_unused]] transport_catalogue::TransportC
     // Далее добавляются расстояния между остановками
     for (const CommandDescription& command : commands_) {
         if (command.name == "Stop") {
-            catalogue.AddStopDistances(command.id, ParseDistances(command.description));
+            for (const auto& [to_stop, distance] : ParseDistances(command.description)) {
+                catalogue.SetStopDistances(command.id, to_stop, distance);
+            }
         }
     }
 

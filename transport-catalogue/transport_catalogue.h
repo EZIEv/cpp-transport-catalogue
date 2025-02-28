@@ -57,7 +57,7 @@ public:
 	void AddStop(const std::string& name, geo::Coordinates coords);
 
 	// Добавляет расстояние между двумя остановками в справочник
-	void AddStopDistances(std::string_view from, const std::unordered_map<std::string_view, int>& distances);
+	void SetStopDistances(std::string_view from, std::string_view to, int distance);
 
 	// Добавляет новый автобусный маршрут в транспортный справочник
 	void AddBus(const std::string& name, const std::vector<std::string_view>& stops_names);

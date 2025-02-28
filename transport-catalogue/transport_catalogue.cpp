@@ -61,11 +61,8 @@ void TransportCatalogue::AddStop(const string& name, geo::Coordinates coords) {
 }
 
 // Добавляет расстояние между двумя остановками в справочник
-void TransportCatalogue::AddStopDistances(string_view from, const std::unordered_map<std::string_view, int>& distances) {
-    const Stop* stop_ptr = GetStop(from);
-    for (const auto& [to_stop, distance] : distances) {
-        stop_to_stop_[{stop_ptr, GetStop(to_stop)}] = distance;
-    }
+void TransportCatalogue::SetStopDistances(string_view from_stop, string_view to_stop, int distance) {
+    stop_to_stop_[{GetStop(from_stop), GetStop(to_stop)}] = distance;
 }
 
 // Добавляет новый автобусный маршрут в транспортный справочник
