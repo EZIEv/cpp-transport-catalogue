@@ -36,7 +36,8 @@ void PrintBusInfo(string_view bus_id, const transport_catalogue::TransportCatalo
     if (bus_info.num_of_stops) {
         output << setprecision(6);
         output << "Bus "s << bus_id << ": "s << bus_info.num_of_stops << " stops on route, "s <<
-                bus_info.num_of_unique_stops << " unique stops, "s << bus_info.length << " route length "s << endl;
+                bus_info.num_of_unique_stops << " unique stops, "s << bus_info.route_length << " route length, "s << 
+                bus_info.curvature << " curvature" << endl;
     } else {
         output << "Bus "s << bus_id << ": not found"s << endl;
     }

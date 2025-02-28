@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iterator>
+#include <unordered_map>
 
 #include "input_reader.h"
 
@@ -8,7 +9,7 @@ using namespace std::literals;
 
 namespace input_reader {
 
-// Парсит строку вида "10.123,  -30.1837" и возвращает пару координат (широта, долгота)
+// Парсит строку вида " 55.611087, 37.20829, 3900m to Marushkino " и возвращает пару координат (широта, долгота)
 geo::Coordinates ParseCoordinates(std::string_view str) {
     static const double nan = std::nan("");
 
@@ -20,11 +21,36 @@ geo::Coordinates ParseCoordinates(std::string_view str) {
     }
 
     auto not_space2 = str.find_first_not_of(' ', comma + 1);
+    auto comma2 = str.find(',', not_space2 + 1);
 
     double lat = std::stod(std::string(str.substr(not_space, comma - not_space)));
-    double lng = std::stod(std::string(str.substr(not_space2)));
+    double lng = std::stod(std::string(str.substr(not_space2, comma2 == str.npos ? str.size() - not_space2 : comma2 - not_space2)));
 
     return {lat, lng};
+}
+
+// Парсит строку вида " 55.611087, 37.20829, 3900m to Marushkino " и возвращает хэш-таблицу
+// формата "остановка назначения - расстояние"
+std::unordered_map<std::string_view, int> ParseDistances(std::string_view str) {
+    std::unordered_map<std::string_view, int> distances;
+
+    auto comma = str.find(',', str.find(',') + 1);
+    
+    while (comma != str.npos) {
+        auto not_space = str.find_first_not_of(' ', comma + 1);
+        auto dimension = str.find('m', not_space + 1);
+
+        int distance = std::stoi(std::string(str.substr(not_space, dimension - not_space)));
+
+        auto stop_start = dimension + 5;
+        comma = str.find(',', comma + 1);
+
+        std::string_view to_stop = str.substr(stop_start, comma == str.npos ? str.size() - stop_start : comma - stop_start);
+
+        distances[to_stop] = distance;
+    }
+
+    return distances;
 }
 
 // Удаляет пробелы в начале и конце строки
@@ -107,6 +133,13 @@ void InputReader::ApplyCommands([[maybe_unused]] transport_catalogue::TransportC
     for (const CommandDescription& command : commands_) {
         if (command.name == "Stop") {
             catalogue.AddStop(command.id, ParseCoordinates(command.description));
+        }
+    }
+
+    // Далее добавляются расстояния между остановками
+    for (const CommandDescription& command : commands_) {
+        if (command.name == "Stop") {
+            catalogue.AddStopDistances(command.id, ParseDistances(command.description));
         }
     }
 

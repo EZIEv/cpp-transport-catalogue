@@ -26,19 +26,22 @@ const Bus* TransportCatalogue::GetBus(string_view bus_name) const {
 const BusInfo TransportCatalogue::GetBusInfo(string_view bus_name) const {
     const Bus* bus = GetBus(bus_name);
     if (!bus) {
-        return {0, 0, 0};
+        return {0, 0, 0, 0};
     }
     
     unordered_set<const Stop*> unique_stops; // Создает набор уникальных указателей на остановки, через которые проходит маршрут
-    double length = 0;
+    double route_length = 0;
+    double geo_length = 0;
     for (size_t i = 0; i < bus->stops.size(); ++i) {
         if (i != 0) {
-            length += geo::ComputeDistance((*bus).stops[i - 1]->coords, (*bus).stops[i]->coords);
+            geo_length += geo::ComputeDistance((*bus).stops[i - 1]->coords, (*bus).stops[i]->coords);
+            auto it = stop_to_stop_.find({(*bus).stops[i - 1], (*bus).stops[i]});
+            route_length += it != stop_to_stop_.end() ? it->second : stop_to_stop_.at({(*bus).stops[i], (*bus).stops[i - 1]});
         }
         unique_stops.insert((*bus).stops[i]);
     }
 
-    return {(*bus).stops.size(), unique_stops.size(), length};
+    return {(*bus).stops.size(), unique_stops.size(), route_length, route_length / geo_length};
 }
 
 /* Возвращает константную ссылку на множество наименований автобусных маршрутов, 
@@ -54,7 +57,15 @@ void TransportCatalogue::AddStop(const string& name, geo::Coordinates coords) {
     stops_.push_back({name, coords}); // Создает новую остановку
     const Stop* stop_ptr = &stops_.back(); // Создает указатель на остановку
     stop_by_name_[stop_ptr->name] = stop_ptr;
-    buses_on_stop_[stop_ptr->name];
+    buses_on_stop_[stop_ptr->name];    
+}
+
+// Добавляет расстояние между двумя остановками в справочник
+void TransportCatalogue::AddStopDistances(string_view from, const std::unordered_map<std::string_view, int>& distances) {
+    const Stop* stop_ptr = GetStop(from);
+    for (const auto& [to_stop, distance] : distances) {
+        stop_to_stop_[{stop_ptr, GetStop(to_stop)}] = distance;
+    }
 }
 
 // Добавляет новый автобусный маршрут в транспортный справочник
