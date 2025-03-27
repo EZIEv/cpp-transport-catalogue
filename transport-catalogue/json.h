@@ -35,24 +35,11 @@ struct NodePrinter {
     void operator() (const Dict& value);
 };
 
+using Value = std::variant<std::nullptr_t, int, double, std::string, bool, Array, Dict>;
+
 // Класс, представляющий JSON-узел
-class Node {
+class Node : public Value {
 public:
-    using Value = std::variant<std::nullptr_t, int, double, std::string, bool, Array, Dict>;
-
-    // Конструктор по умолчанию, создает узел с нулевым указателем
-    Node() = default;
-
-    // Конструктор узла из переданного значения
-    template <typename T>
-    Node(T&& v) noexcept : node_(std::forward<T>(v)) {}
-
-    // Конструктор узла из списка инициализации массива
-    Node(std::initializer_list<Node> init);
-
-    // Конструктор узла из списка инициализации словаря
-    Node(std::initializer_list<std::pair<const std::string, Node>> init);
-
     // Возвращает константную ссылку на хранимое значение
     const Value& GetValue() const;
 
@@ -77,9 +64,6 @@ public:
     // Операторы сравнения
     bool operator== (const Node& other) const;
     bool operator!= (const Node& other) const;
-
-private:
-    Value node_ = nullptr;
 };
 
 // Класс, представляющий JSON-документ

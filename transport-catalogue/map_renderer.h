@@ -107,13 +107,26 @@ struct RenderSettings {
 class MapRenderer {
 public:
     // Рендерит карту с выводом в поток
-    void Render(std::ostream& out, const std::set<const domain::Bus*, domain::BusPointerComparator>& buses) const;
+    void Render(std::ostream& out, const std::set<const domain::Bus*, const domain::BusPointerComparator>& buses);
 
     // Задание настроек для рендера
     void SetRenderSettings(const RenderSettings& settings);
 
 private:
+    // Отрисовывает автобусные маршруты
+    void DrawBusLines(svg::Document& doc, const set<const domain::Bus*, const domain::BusPointerComparator>& buses) const;
+
+    // Отрисовывает подписи к автобусным маршрутам
+    void DrawBusLabels(svg::Document& doc, const set<const domain::Bus*, const domain::BusPointerComparator>& buses) const;
+
+    // Отрисовывает остановки, через которые проходят автобусные маршруты
+    void DrawStopCircles(svg::Document& doc, const set<const domain::Stop*, domain::StopPointerComparator>& stops) const;
+
+    // Отрисовывает названия остановок
+    void DrawStopLabels(svg::Document& doc, const set<const domain::Stop*, domain::StopPointerComparator>& stops) const;
+
     RenderSettings settings_; // < настройки рендера
+    unordered_map<string_view, svg::Point> screen_coords_by_stop_name_; // < спроецированные координаты остановок на плоскость по их имени
 };
 
 } // namespace map_renderer

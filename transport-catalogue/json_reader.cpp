@@ -30,6 +30,19 @@ request_handler::BusRequest ParseBusRequest(const json::Dict& request) {
     return bus_request;
 }
 
+// Парсит базовые запросы на добаление маршрутов и оствновок в каталог
+void ParseBaseRequests(const json::Array& base_requests, request_handler::RequestHandler& rh) {
+    for (const json::Node& base_request : base_requests) {
+        const json::Dict& request = base_request.AsMap();
+        const string& request_type = request.at("type"s).AsString();
+        if (request_type == "Stop"sv) {
+            rh.AddStopRequest(ParseStopRequest(request));
+        } else if (request_type == "Bus"sv) {
+            rh.AddBusRequest(ParseBusRequest(request));
+        }
+    }
+}
+
 // Парсит запрос на получение статистики
 request_handler::StatRequest ParseStatRequest(const json::Dict& request) {
     request_handler::StatRequest stat_request;
@@ -39,6 +52,14 @@ request_handler::StatRequest ParseStatRequest(const json::Dict& request) {
     stat_request.name = stat_request.type == "Map"s ? ""s : request.at("name"s).AsString();
 
     return stat_request;
+}
+
+// Парсит запросы на получение статистики из каталога
+void ParseStatRequests(const json::Array& stat_requests, request_handler::RequestHandler& rh) {
+    for (const json::Node& stat_request : stat_requests) {
+        const json::Dict& request = stat_request.AsMap();
+        rh.AddStatRequest(ParseStatRequest(request));
+    }
 }
 
 // Парсит ноду с цветом
@@ -99,22 +120,9 @@ void ParseRequest(istream& input, request_handler::RequestHandler& rh, map_rende
     const json::Dict& render_settings = requests.at("render_settings"s).AsMap();
     const json::Array& stat_requests = requests.at("stat_requests"s).AsArray();
 
-    for (const json::Node& base_request : base_requests) {
-        const json::Dict& request = base_request.AsMap();
-        const string& request_type = request.at("type"s).AsString();
-        if (request_type == "Stop"sv) {
-            rh.AddStopRequest(ParseStopRequest(request));
-        } else if (request_type == "Bus"sv) {
-            rh.AddBusRequest(ParseBusRequest(request));
-        }
-    }
-
+    ParseBaseRequests(base_requests, rh);    
     ParsRenderSettings(render_settings, mr);
-
-    for (const json::Node& stat_request : stat_requests) {
-        const json::Dict& request = stat_request.AsMap();
-        rh.AddStatRequest(ParseStatRequest(request));
-    }
+    ParseStatRequests(stat_requests, rh);
 }
 
 // Выводит в поток собранную статистику в формате json
@@ -147,7 +155,7 @@ void PrintStat(std::ostream& output, const std::deque<request_handler::StatRespo
             json_stat["error_message"] = json::Node("not found");
         }
 
-        json_stats.push_back(json_stat);
+        json_stats.push_back(json::Node(json_stat));
     }
 
     json::Print(json::Document{json::Node(json_stats)}, output);
