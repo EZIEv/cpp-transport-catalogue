@@ -38,7 +38,7 @@ public:
     void ApplyBaseRequests();
 
     // Выполняет запросы на получение статистики из каталога
-    std::deque<StatResponse> ApplyStatRequests(const map_renderer::MapRenderer& mr);
+    std::deque<StatResponse> ApplyStatRequests(map_renderer::MapRenderer& mr);
 
     // Возвращает константную ссылку на каталог
     const transport_catalogue::TransportCatalogue& GetCatalogue() const;

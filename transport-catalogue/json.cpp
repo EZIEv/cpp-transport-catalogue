@@ -195,18 +195,12 @@ void NodePrinter::operator() (const Dict& value) {
 // Конец реализации посетителя
 
 // Реализация методов класса, представляющего JSON-узел
-
-Node::Node(std::initializer_list<Node> init) 
-    : node_(init.size() == 1 ? init.begin()->node_ : Array(init)) {}
-
-Node::Node(std::initializer_list<std::pair<const string, Node>> init) : node_(Dict(init)) {}
-
-const Node::Value& Node::GetValue() const {
-    return node_;
+const Value& Node::GetValue() const {
+    return *this;
 }
 
 bool Node::IsInt() const {
-    return holds_alternative<int>(node_);
+    return holds_alternative<int>(*this);
 }
 
 bool Node::IsDouble() const {
@@ -214,32 +208,32 @@ bool Node::IsDouble() const {
 }
 
 bool Node::IsPureDouble() const {
-    return holds_alternative<double>(node_);
+    return holds_alternative<double>(*this);
 }
 
 bool Node::IsBool() const {
-    return holds_alternative<bool>(node_);
+    return holds_alternative<bool>(*this);
 }
 
 bool Node::IsString() const {
-    return holds_alternative<string>(node_);
+    return holds_alternative<string>(*this);
 }
 
 bool Node::IsNull() const {
-    return holds_alternative<nullptr_t>(node_);
+    return holds_alternative<nullptr_t>(*this);
 }
 
 bool Node::IsArray() const {
-    return holds_alternative<Array>(node_);
+    return holds_alternative<Array>(*this);
 }
 
 bool Node::IsMap() const {
-    return holds_alternative<Dict>(node_);
+    return holds_alternative<Dict>(*this);
 }
 
 int Node::AsInt() const {
     if (IsInt()) {
-        return get<int>(node_);
+        return get<int>(*this);
     } else {
         throw logic_error("The type is not suitable");
     }
@@ -247,7 +241,7 @@ int Node::AsInt() const {
 
 bool Node::AsBool() const {
     if (IsBool()) {
-        return get<bool>(node_);
+        return get<bool>(*this);
     } else {
         throw logic_error("The type is not suitable");
     }
@@ -256,9 +250,9 @@ bool Node::AsBool() const {
 double Node::AsDouble() const {
     if (IsDouble()) {
         if (IsPureDouble()) {
-            return get<double>(node_);
+            return get<double>(*this);
         } else {
-            return get<int>(node_);
+            return get<int>(*this);
         }
     } else {
         throw logic_error("The type is not suitable");
@@ -267,7 +261,7 @@ double Node::AsDouble() const {
 
 const string& Node::AsString() const {
     if (IsString()) {
-        return get<string>(node_);
+        return get<string>(*this);
     } else {
         throw logic_error("The type is not suitable");
     }
@@ -275,7 +269,7 @@ const string& Node::AsString() const {
 
 const Array& Node::AsArray() const {
     if (IsArray()) {
-        return get<Array>(node_);
+        return get<Array>(*this);
     } else {
         throw logic_error("The type is not suitable");
     }
@@ -283,14 +277,14 @@ const Array& Node::AsArray() const {
 
 const Dict& Node::AsMap() const {
     if (IsMap()) {
-        return get<Dict>(node_);
+        return get<Dict>(*this);
     } else {
         throw logic_error("The type is not suitable");
     }
 }
 
 bool Node::operator== (const Node& other) const {
-    return node_ == other.node_;
+    return *this == other;
 }
 
 bool Node::operator!= (const Node& other) const {

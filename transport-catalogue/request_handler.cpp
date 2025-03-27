@@ -41,7 +41,7 @@ void RequestHandler::ApplyBaseRequests() {
 }
 
 // Выполняет запросы на получение статистики из каталога
-deque<StatResponse> RequestHandler::ApplyStatRequests(const map_renderer::MapRenderer& mr) {
+deque<StatResponse> RequestHandler::ApplyStatRequests(map_renderer::MapRenderer& mr) {
     deque<StatResponse> stat_responses;
 
     for (const StatRequest& stat_request : stat_requests_) {
