@@ -41,11 +41,14 @@ void MapRenderer::DrawBusLines(svg::Document& doc, const set<const domain::Bus*,
 
         for (const domain::Stop* stop : bus->stops) {
             poly_line.AddPoint(screen_coords_by_stop_name_.at(stop->name));
+            poly_line.AddPoint(screen_coords_by_stop_name_.at(stop->name));
         }
 
         doc.Add(poly_line);
 
         ++color_index;
+    }
+}
     }
 }
 
@@ -56,6 +59,8 @@ void MapRenderer::DrawBusLabels(svg::Document& doc, const set<const domain::Bus*
         svg::Text underlayer;
         svg::Text text;
 
+        underlayer.SetPosition(screen_coords_by_stop_name_.at(bus->stops[0]->name));
+        text.SetPosition(screen_coords_by_stop_name_.at(bus->stops[0]->name));
         underlayer.SetPosition(screen_coords_by_stop_name_.at(bus->stops[0]->name));
         text.SetPosition(screen_coords_by_stop_name_.at(bus->stops[0]->name));
         underlayer.SetOffset(settings_.bus_label_offset);
@@ -84,6 +89,8 @@ void MapRenderer::DrawBusLabels(svg::Document& doc, const set<const domain::Bus*
         if (!(bus->is_roundtrip) && bus->stops.size() != 1 && bus->stops[0]->name != bus->stops[bus->stops.size() / 2]->name) {
             underlayer.SetPosition(screen_coords_by_stop_name_.at(bus->stops[bus->stops.size() / 2]->name));
             text.SetPosition(screen_coords_by_stop_name_.at(bus->stops[bus->stops.size() / 2]->name));
+            underlayer.SetPosition(screen_coords_by_stop_name_.at(bus->stops[bus->stops.size() / 2]->name));
+            text.SetPosition(screen_coords_by_stop_name_.at(bus->stops[bus->stops.size() / 2]->name));
             underlayer.SetOffset(settings_.bus_label_offset);
             text.SetOffset(settings_.bus_label_offset);
             underlayer.SetFontSize(settings_.bus_label_font_size);
@@ -110,12 +117,17 @@ void MapRenderer::DrawBusLabels(svg::Document& doc, const set<const domain::Bus*
         ++color_index;
     }    
 }
+    }    
+}
 
+// Отрисовывает остановки, через которые проходят автобусные маршруты
+void MapRenderer::DrawStopCircles(svg::Document& doc, const set<const domain::Stop*, domain::StopPointerComparator>& stops) const {
 // Отрисовывает остановки, через которые проходят автобусные маршруты
 void MapRenderer::DrawStopCircles(svg::Document& doc, const set<const domain::Stop*, domain::StopPointerComparator>& stops) const {
     for (const domain::Stop* stop : stops) {
         svg::Circle circle;
 
+        circle.SetCenter(screen_coords_by_stop_name_.at(stop->name));
         circle.SetCenter(screen_coords_by_stop_name_.at(stop->name));
         circle.SetRadius(settings_.stop_radius);
         circle.SetFillColor("white");
@@ -123,13 +135,19 @@ void MapRenderer::DrawStopCircles(svg::Document& doc, const set<const domain::St
         doc.Add(circle);
     }
 }
+    }
+}
 
+// Отрисовывает названия остановок
+void MapRenderer::DrawStopLabels(svg::Document& doc, const set<const domain::Stop*, domain::StopPointerComparator>& stops) const {
 // Отрисовывает названия остановок
 void MapRenderer::DrawStopLabels(svg::Document& doc, const set<const domain::Stop*, domain::StopPointerComparator>& stops) const {
     for (const domain::Stop* stop : stops) {
         svg::Text underlayer;
         svg::Text text;
 
+        underlayer.SetPosition(screen_coords_by_stop_name_.at(stop->name));
+        text.SetPosition(screen_coords_by_stop_name_.at(stop->name));
         underlayer.SetPosition(screen_coords_by_stop_name_.at(stop->name));
         text.SetPosition(screen_coords_by_stop_name_.at(stop->name));
         underlayer.SetOffset(settings_.stop_label_offset);
