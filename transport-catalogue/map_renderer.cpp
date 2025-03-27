@@ -49,8 +49,7 @@ void MapRenderer::DrawBusLines(svg::Document& doc, const set<const domain::Bus*,
         ++color_index;
     }
 }
-    }
-}
+
 
 // Отрисовывает подписи к автобусным маршрутам
 void MapRenderer::DrawBusLabels(svg::Document& doc, const set<const domain::Bus*, domain::BusPointerComparator>& buses) const {
@@ -117,11 +116,7 @@ void MapRenderer::DrawBusLabels(svg::Document& doc, const set<const domain::Bus*
         ++color_index;
     }    
 }
-    }    
-}
 
-// Отрисовывает остановки, через которые проходят автобусные маршруты
-void MapRenderer::DrawStopCircles(svg::Document& doc, const set<const domain::Stop*, domain::StopPointerComparator>& stops) const {
 // Отрисовывает остановки, через которые проходят автобусные маршруты
 void MapRenderer::DrawStopCircles(svg::Document& doc, const set<const domain::Stop*, domain::StopPointerComparator>& stops) const {
     for (const domain::Stop* stop : stops) {
@@ -135,11 +130,7 @@ void MapRenderer::DrawStopCircles(svg::Document& doc, const set<const domain::St
         doc.Add(circle);
     }
 }
-    }
-}
 
-// Отрисовывает названия остановок
-void MapRenderer::DrawStopLabels(svg::Document& doc, const set<const domain::Stop*, domain::StopPointerComparator>& stops) const {
 // Отрисовывает названия остановок
 void MapRenderer::DrawStopLabels(svg::Document& doc, const set<const domain::Stop*, domain::StopPointerComparator>& stops) const {
     for (const domain::Stop* stop : stops) {
