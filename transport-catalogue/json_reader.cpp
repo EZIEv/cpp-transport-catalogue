@@ -134,31 +134,47 @@ void PrintStat(std::ostream& output, const std::deque<request_handler::StatRespo
 
         if (std::holds_alternative<domain::BusInfo>(stat.info)) {
             domain::BusInfo bus_info =  get<domain::BusInfo>(stat.info);
-            json_stat["request_id"] = json::Node(stat.id);
-            json_stat["curvature"] = json::Node(bus_info.curvature);
-            json_stat["route_length"] = json::Node(bus_info.route_length);
-            json_stat["stop_count"] = json::Node(bus_info.num_of_stops);
-            json_stat["unique_stop_count"] = json::Node(bus_info.num_of_unique_stops);
+            json_stat = json::Builder{}
+                                .StartDict()
+                                    .Key("request_id").Value(stat.id)
+                                    .Key("curvature").Value(bus_info.curvature)
+                                    .Key("route_length").Value(bus_info.route_length)
+                                    .Key("stop_count").Value(bus_info.num_of_stops)
+                                    .Key("unique_stop_count").Value(bus_info.num_of_unique_stops)
+                                .EndDict()
+                                .Build().AsMap();
         } else if (std::holds_alternative<domain::StopInfo>(stat.info)) {
             const domain::StopInfo& stop_info = get<domain::StopInfo>(stat.info);
-            json_stat["request_id"] = json::Node(stat.id);
             json::Array buses_on_stop;
             for (const domain::Bus* bus : stop_info) {
                 buses_on_stop.push_back(json::Node(bus->name));
             }
-            json_stat["buses"] = json::Node(buses_on_stop);
+            json_stat = json::Builder{}
+                                .StartDict()
+                                    .Key("request_id").Value(stat.id)
+                                    .Key("buses").Value(buses_on_stop)
+                                .EndDict()
+                                .Build().AsMap();
         } else if (std::holds_alternative<string>(stat.info)) {
-            json_stat["request_id"] = json::Node(stat.id);
-            json_stat["map"] = json::Node(get<string>(stat.info));
+            json_stat = json::Builder{}
+                                .StartDict()
+                                    .Key("request_id").Value(stat.id)
+                                    .Key("map").Value(get<string>(stat.info))
+                                .EndDict()
+                                .Build().AsMap();
         } else {
-            json_stat["request_id"] = json::Node(stat.id);
-            json_stat["error_message"] = json::Node("not found");
+            json_stat = json::Builder{}
+                                .StartDict()
+                                    .Key("request_id").Value(stat.id)
+                                    .Key("error_message").Value("not found")
+                                .EndDict()
+                                .Build().AsMap();
         }
 
         json_stats.push_back(json::Node(json_stat));
     }
 
-    json::Print(json::Document{json::Node(json_stats)}, output);
+    json::Print(json::Document{json::Builder{}.Value(json_stats).Build()}, output);
 }
 
 } // namespace json_reader

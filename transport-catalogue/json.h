@@ -35,13 +35,27 @@ struct NodePrinter {
     void operator() (const Dict& value);
 };
 
-using Value = std::variant<std::nullptr_t, int, double, std::string, bool, Array, Dict>;
+using Val = std::variant<std::nullptr_t, int, double, std::string, bool, Array, Dict>;
 
 // Класс, представляющий JSON-узел
-class Node : public Value {
+class Node : public Val {
 public:
-    // Возвращает константную ссылку на хранимое значение
-    const Value& GetValue() const;
+    Node() : Val(nullptr) {}
+    Node(const Val& val) : Val(val) {}
+    Node(int value) : Val(value) {}
+    Node(double value) : Val(value) {}
+    Node(const std::string& value) : Val(value) {}
+    Node(std::string&& value) : Val(std::move(value)) {}
+    Node(bool value) : Val(value) {}
+    Node(const char* value) : Val(std::string(value)) {}
+    Node(const Array& value) : Val(value) {}
+    Node(Array&& value) : Val(std::move(value)) {}
+    Node(const Dict& value) : Val(value) {}
+    Node(Dict&& value) : Val(std::move(value)) {}
+
+    // Возвращает ссылку на хранимое значение
+    const Val& GetValue() const;
+    Val& GetValue();
 
     // Проверка типа узла
     bool IsInt() const;
@@ -60,6 +74,9 @@ public:
     const std::string& AsString() const;
     const Array& AsArray() const;
     const Dict& AsMap() const;
+    std::string& AsString();
+    Array& AsArray();
+    Dict& AsMap();
 
     // Операторы сравнения
     bool operator== (const Node& other) const;

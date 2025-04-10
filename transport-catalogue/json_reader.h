@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "json.h"
+#include "json_builder.h"
 #include "map_renderer.h"
 #include "request_handler.h"
 

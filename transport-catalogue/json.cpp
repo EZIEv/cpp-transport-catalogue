@@ -105,12 +105,12 @@ Node LoadDict(std::istream& input) {
 }
 
 // Загружает литералы null, false, true
-Node LoadLiteral(std::istream& input, const std::string& expected, Node value) {
+Node LoadLiteral(std::istream& input, const std::string& expected, Node Val) {
     for (size_t i = 1; i < expected.size(); ++i) {
         if (input.get() != expected[i]) throw ParsingError("Error in parsing '" + expected + "'");
     }
     if (std::isalnum(input.peek())) throw ParsingError("Unexpected characters after '" + expected + "'");
-    return value;
+    return Val;
 }
 
 // Определяет тип загружаемого узла и вызывают соответствующий обработчик
@@ -133,13 +133,13 @@ Node LoadNode(std::istream& input) {
 
 }  // namespace
 
-void NodePrinter::operator() ([[maybe_unused]] const nullptr_t value) {
+void NodePrinter::operator() ([[maybe_unused]] const nullptr_t Val) {
     out << "null"sv;
 }
 
 // Реализация посетителя для вывода содержимого JSON-узла в поток
 
-void NodePrinter::operator() (const string& value) {
+void NodePrinter::operator() (const string& Val) {
     static const std::unordered_map<char, std::string_view> chars_map = {
         {'\n', "\\n"},
         {'\r', "\\r"},
@@ -149,7 +149,7 @@ void NodePrinter::operator() (const string& value) {
     };
 
     out << "\""sv;
-    for (char c : value) {
+    for (char c : Val) {
         auto it = chars_map.find(c);
         if (it != chars_map.end()) {
             out << it->second;
@@ -160,14 +160,14 @@ void NodePrinter::operator() (const string& value) {
     out << "\""sv;
 }
 
-void NodePrinter::operator() (const bool value) {
-    out << boolalpha << value;
+void NodePrinter::operator() (const bool Val) {
+    out << boolalpha << Val;
 }
 
-void NodePrinter::operator() (const Array& value) {
+void NodePrinter::operator() (const Array& Val) {
     out << "["sv;
     bool is_first = true;
-    for (const Node& node : value) {
+    for (const Node& node : Val) {
         if (!is_first) {
             out << ", "sv;
         }
@@ -177,10 +177,10 @@ void NodePrinter::operator() (const Array& value) {
     out << "]"sv;
 }
 
-void NodePrinter::operator() (const Dict& value) {
+void NodePrinter::operator() (const Dict& Val) {
     out << "{"sv;
     bool is_first = true;
-    for (const auto& [key, node] : value) {
+    for (const auto& [key, node] : Val) {
         if (!is_first) {
             out << ", "sv;
         }
@@ -195,7 +195,11 @@ void NodePrinter::operator() (const Dict& value) {
 // Конец реализации посетителя
 
 // Реализация методов класса, представляющего JSON-узел
-const Value& Node::GetValue() const {
+const Val& Node::GetValue() const {
+    return *this;
+}
+
+Val& Node::GetValue() {
     return *this;
 }
 
@@ -283,12 +287,36 @@ const Dict& Node::AsMap() const {
     }
 }
 
+string& Node::AsString() {
+    if (IsString()) {
+        return get<string>(*this);
+    } else {
+        throw logic_error("The type is not suitable");
+    }
+}
+
+Array& Node::AsArray() {
+    if (IsArray()) {
+        return get<Array>(*this);
+    } else {
+        throw logic_error("The type is not suitable");
+    }
+}
+
+Dict& Node::AsMap() {
+    if (IsMap()) {
+        return get<Dict>(*this);
+    } else {
+        throw logic_error("The type is not suitable");
+    }
+}
+
 bool Node::operator== (const Node& other) const {
-    return *this == other;
+    return this->GetValue() == other.GetValue();
 }
 
 bool Node::operator!= (const Node& other) const {
-    return !(*this == other);
+    return !(this->GetValue() == other.GetValue());
 }
 
 // Конец реализации класса, представляющего JSON-узел
